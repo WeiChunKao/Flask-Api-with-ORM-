@@ -13,6 +13,18 @@ def getUser() -> dict:
     return UserClass().getUser()
 
 
+@user_service.route('/addUser', methods=['POST'])
+# @handleApiProcess.apiLoginProcess()
+def addUser() -> dict:
+    if not request:
+        abort(400)
+    elif 'user' not in request.json:
+        return Http.commonReturnFormat(True, '缺少參數', {}), 400, Http.postHeader('')
+    elif not isinstance(request.json['user'], list):
+        return Http.commonReturnFormat(True, '參數型別不正確', {}), 400, Http.postHeader('')
+    return UserClass().addUser(request.json['user'])
+
+
 @user_service.route('/updateOneUser', methods=['POST'])
 # @handleApiProcess.apiLoginProcess()
 def updateOneUser() -> dict:
@@ -36,23 +48,25 @@ def updateAllUser() -> dict:
         return Http.commonReturnFormat(True, '參數型別不正確', {}), 400, Http.postHeader('')
     return UserClass().updateAllUser(request.json['updateData'], name=request.json['name'])
 
+
 @user_service.route('/deleteOneUser', methods=['POST'])
 # @handleApiProcess.apiLoginProcess()
 def deleteOneUser() -> dict:
     if not request:
         abort(400)
-    elif  'name' not in request.json:
+    elif 'name' not in request.json:
         return Http.commonReturnFormat(True, '缺少參數', {}), 400, Http.postHeader('')
     elif not isinstance(request.json['name'], str):
         return Http.commonReturnFormat(True, '參數型別不正確', {}), 400, Http.postHeader('')
     return UserClass().deleteOne(name=request.json['name'])
+
 
 @user_service.route('/deleteAllUser', methods=['POST'])
 # @handleApiProcess.apiLoginProcess()
 def deleteAllUser() -> dict:
     if not request:
         abort(400)
-    elif  'name' not in request.json:
+    elif 'name' not in request.json:
         return Http.commonReturnFormat(True, '缺少參數', {}), 400, Http.postHeader('')
     elif not isinstance(request.json['name'], str):
         return Http.commonReturnFormat(True, '參數型別不正確', {}), 400, Http.postHeader('')
