@@ -1,4 +1,6 @@
 # Python-Flask-ORM
+## main.py  
+### 註冊各service route  
 ## common資料夾提供基本py檔函式。  
 ### commom.py:內有Log、Http、TimeUtils、JsonUtils、Orm等等函式可以呼叫，可以供不同service呼叫  
 ### config.py:設定相關參數，使用os.getenv未來轉到k8s或是docker-compose啟動時可以定義在YAML檔。K8S可以用secret yaml將敏感參數加密  
