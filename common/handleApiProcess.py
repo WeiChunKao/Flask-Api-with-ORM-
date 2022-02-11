@@ -3,7 +3,6 @@ from typing import Any
 from functools import wraps
 from flask import request
 
-
 def apiLoginProcess(func: Any) -> Any:
     """[summary]
     處理驗證

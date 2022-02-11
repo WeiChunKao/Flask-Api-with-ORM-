@@ -298,7 +298,7 @@ class Orm:
         # 建立連線
         self.session = self.sessionMaker()
         # 建立log物件
-        self.logger = Log(self.__class__.__name__)
+        #self.logger = Log(self.__class__.__name__)
 
     def getSessions(self):
         """[summary]
@@ -333,16 +333,16 @@ class Orm:
 
     def insert(self, data: List[Any]) -> None:
         try:
-            self.logger.writeLog(
-                f"{sys._getframe().f_code.co_name}=>data:{data}")
+            # self.logger.writeLog(
+            #     f"{sys._getframe().f_code.co_name}=>data:{data}")
             self.session.add_all(data)
         except DatabaseError as de:
-            self.logger.writeError(
-                f"{sys._getframe().f_code.co_name}=>{de}")
+            # self.logger.writeError(
+            #     f"{sys._getframe().f_code.co_name}=>{de}")
             self.session.rollback()
         except Exception as e:
-            self.logger.writeError(
-                f"{sys._getframe().f_code.co_name}=>{e}")
+            # self.logger.writeError(
+            #     f"{sys._getframe().f_code.co_name}=>{e}")
             self.session.rollback()
         finally:
             self.session.commit()
@@ -356,22 +356,19 @@ class Orm:
             kwargs (Any): where條件的值
         """
         try:
-            self.logger.writeLog(
-                f"{sys._getframe().f_code.co_name}=>\
-                    className:{className.__class__.__name__}，\
-                    filterString:{filterString}，\
-                    kwargs:{kwargs}")
+            # self.logger.writeLog(
+            #     f"{sys._getframe().f_code.co_name}=>className:{className.__name__}，filterString:{filterString}，kwargs:{kwargs}")
             row = self.session.query(className).filter(
                 text(filterString)
             ).params(**kwargs).one()
             self.session.delete(row)
         except DatabaseError as de:
-            self.logger.writeError(
-                f"{sys._getframe().f_code.co_name}=>{de}")
+            # self.logger.writeError(
+            #     f"{sys._getframe().f_code.co_name}=>DatabaseError:{de}，className:{className.__name__}，filterString:{filterString}，kwargs:{kwargs}")
             self.session.rollback()
         except Exception as e:
-            self.logger.writeError(
-                f"{sys._getframe().f_code.co_name}=>{e}")
+            # self.logger.writeError(
+            #     f"{sys._getframe().f_code.co_name}=>Exception:{e}，className:{className.__name__}，filterString:{filterString}，kwargs:{kwargs}")
             self.session.rollback()
         finally:
             self.session.commit()
@@ -385,23 +382,25 @@ class Orm:
             kwargs (Any): where條件的值
         """
         try:
+            # self.logger.writeLog(
+            #     f"{sys._getframe().f_code.co_name}=>className:{className.__name__}，filterString:{filterString}，kwargs:{kwargs}")
             row = self.session.query(className).filter(
                 text(filterString)
             ).params(**kwargs).delete(synchronize_session=False)
         except DatabaseError as de:
-            self.logger.writeError(
-                f"{sys._getframe().f_code.co_name}=>{de}")
+            # self.logger.writeError(
+            #     f"{sys._getframe().f_code.co_name}=>DatabaseError:{de}，className:{className.__name__}，filterString:{filterString}，kwargs:{kwargs}")
             self.session.rollback()
             self.close()
         except Exception as e:
-            self.logger.writeError(
-                f"{sys._getframe().f_code.co_name}=>{e}")
+            # self.logger.writeError(
+            #     f"{sys._getframe().f_code.co_name}=>Exception:{e}，className:{className.__name__}，filterString:{filterString}，kwargs:{kwargs}")
             self.session.rollback()
             self.close()
         finally:
             self.session.commit()
 
-    def updateOne(self, className: Any, filterString: String, updateData: dict, **kwargs: dict) -> None:
+    def updateOne(self, className: Any, filterString: str, updateData: dict, **kwargs: dict) -> None:
         """[summary]
         更新單筆資料
         Args:
@@ -411,6 +410,8 @@ class Orm:
             kwargs (Any): where條件的值
         """
         try:
+            # self.logger.writeLog(
+            #     f"{sys._getframe().f_code.co_name}=>className:{className.__name__}，filterString:{filterString}，kwargs:{kwargs}")
             row = self.session.query(className).filter(
                 text(filterString)
             ).params(**kwargs).one()
@@ -418,12 +419,12 @@ class Orm:
                 setattr(row, k, v)
             self.session.add(row)
         except DatabaseError as de:
-            self.logger.writeError(
-                f"{sys._getframe().f_code.co_name}=>{de}")
+            # self.logger.writeError(
+            #     f"{sys._getframe().f_code.co_name}=>DatabaseError:{de}，className:{className.__name__}，filterString:{filterString}，kwargs:{kwargs}")
             self.session.rollback()
         except Exception as e:
-            self.logger.writeError(
-                f"{sys._getframe().f_code.co_name}=>{e}")
+            # self.logger.writeError(
+            #     f"{sys._getframe().f_code.co_name}=>Exception:{e}，className:{className.__name__}，filterString:{filterString}，kwargs:{kwargs}")
             self.session.rollback()
         finally:
             self.session.commit()
@@ -438,6 +439,8 @@ class Orm:
             kwargs:where條件式的值
         """
         try:
+            # self.logger.writeLog(
+            #     f"{sys._getframe().f_code.co_name}=>className:{className.__name__}，filterString:{filterString}，kwargs:{kwargs}")
             updata: dict = {}
             for k, v in updateData.items():
                 updata[className.__dict__.get(k, '')] = v
@@ -446,12 +449,12 @@ class Orm:
             ).update(
                 updata, synchronize_session=False)
         except DatabaseError as de:
-            self.logger.writeError(
-                f"{sys._getframe().f_code.co_name}=>{de}")
+            # self.logger.writeError(
+            #     f"{sys._getframe().f_code.co_name}=>DatabaseError:{de}，className:{className.__name__}，filterString:{filterString}，kwargs:{kwargs}")
             self.session.rollback()
         except Exception as e:
-            self.logger.writeError(
-                f"{sys._getframe().f_code.co_name}=>{e}")
+            # self.logger.writeError(
+            #     f"{sys._getframe().f_code.co_name}=>Exception:{e}，className:{className.__name__}，filterString:{filterString}，kwargs:{kwargs}")
             self.session.rollback()
         finally:
             self.session.commit()
