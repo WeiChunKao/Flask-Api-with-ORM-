@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from common.config import Config
-from typing import Any, List
+from typing import Any, List, Tuple
 from logging import handlers
 from sqlalchemy import create_engine, Table, MetaData, Column, Integer, String, ForeignKey, text
 from sqlalchemy.orm import mapper, sessionmaker
@@ -298,7 +298,7 @@ class Orm:
         # 建立連線
         self.session = self.sessionMaker()
         # 建立log物件
-        #self.logger = Log(self.__class__.__name__)
+        # self.logger = Log(self.__class__.__name__)
 
     def getSessions(self):
         """[summary]
@@ -331,23 +331,26 @@ class Orm:
         """
         self.session.close()
 
-    def insert(self, data: List[Any]) -> None:
+    def insert(self, data: List[Any]) -> Tuple[bool, str]:
         try:
             # self.logger.writeLog(
             #     f"{sys._getframe().f_code.co_name}=>data:{data}")
             self.session.add_all(data)
+            return True, ""
         except DatabaseError as de:
             # self.logger.writeError(
             #     f"{sys._getframe().f_code.co_name}=>{de}")
             self.session.rollback()
+            return False, f"{sys._getframe().f_code.co_name}=>{de}"
         except Exception as e:
             # self.logger.writeError(
             #     f"{sys._getframe().f_code.co_name}=>{e}")
             self.session.rollback()
+            return False, f"{sys._getframe().f_code.co_name}=>{e}"
         finally:
             self.session.commit()
 
-    def deleteOne(self, className: Any, filterString: str, **kwargs: dict) -> None:
+    def deleteOne(self, className: Any, filterString: str, **kwargs: dict) -> Tuple[bool, str]:
         """[summary]
         刪除單筆資料
         Args:
@@ -362,18 +365,21 @@ class Orm:
                 text(filterString)
             ).params(**kwargs).one()
             self.session.delete(row)
+            return True, ""
         except DatabaseError as de:
             # self.logger.writeError(
             #     f"{sys._getframe().f_code.co_name}=>DatabaseError:{de}，className:{className.__name__}，filterString:{filterString}，kwargs:{kwargs}")
             self.session.rollback()
+            return False, f"{sys._getframe().f_code.co_name}=>DatabaseError:{de}"
         except Exception as e:
             # self.logger.writeError(
             #     f"{sys._getframe().f_code.co_name}=>Exception:{e}，className:{className.__name__}，filterString:{filterString}，kwargs:{kwargs}")
             self.session.rollback()
+            return False, f"{sys._getframe().f_code.co_name}=>Exception:{e}"
         finally:
             self.session.commit()
 
-    def deleteAll(self, className: Any, filterString: String, **kwargs: dict) -> None:
+    def deleteAll(self, className: Any, filterString: String, **kwargs: dict) -> Tuple[bool, str]:
         """[summary]
         刪除多筆資料
         Args:
@@ -384,23 +390,24 @@ class Orm:
         try:
             # self.logger.writeLog(
             #     f"{sys._getframe().f_code.co_name}=>className:{className.__name__}，filterString:{filterString}，kwargs:{kwargs}")
-            row = self.session.query(className).filter(
+            self.session.query(className).filter(
                 text(filterString)
             ).params(**kwargs).delete(synchronize_session=False)
+            return True, ""
         except DatabaseError as de:
             # self.logger.writeError(
             #     f"{sys._getframe().f_code.co_name}=>DatabaseError:{de}，className:{className.__name__}，filterString:{filterString}，kwargs:{kwargs}")
             self.session.rollback()
-            self.close()
+            return False, f"{sys._getframe().f_code.co_name}=>DatabaseError:{de}"
         except Exception as e:
             # self.logger.writeError(
             #     f"{sys._getframe().f_code.co_name}=>Exception:{e}，className:{className.__name__}，filterString:{filterString}，kwargs:{kwargs}")
             self.session.rollback()
-            self.close()
+            return False, f"{sys._getframe().f_code.co_name}=>Exception:{e}"
         finally:
             self.session.commit()
 
-    def updateOne(self, className: Any, filterString: str, updateData: dict, **kwargs: dict) -> None:
+    def updateOne(self, className: Any, filterString: str, updateData: dict, **kwargs: dict) -> Tuple[bool, str]:
         """[summary]
         更新單筆資料
         Args:
@@ -418,18 +425,21 @@ class Orm:
             for k, v in updateData.items():
                 setattr(row, k, v)
             self.session.add(row)
+            return True, ""
         except DatabaseError as de:
             # self.logger.writeError(
             #     f"{sys._getframe().f_code.co_name}=>DatabaseError:{de}，className:{className.__name__}，filterString:{filterString}，kwargs:{kwargs}")
             self.session.rollback()
+            return False, f"{sys._getframe().f_code.co_name}=>DatabaseError:{de}"
         except Exception as e:
             # self.logger.writeError(
             #     f"{sys._getframe().f_code.co_name}=>Exception:{e}，className:{className.__name__}，filterString:{filterString}，kwargs:{kwargs}")
             self.session.rollback()
+            return False, f"{sys._getframe().f_code.co_name}=>Exception:{e}"
         finally:
             self.session.commit()
 
-    def updateAll(self, className: Any, filterString: Any, updateData: dict, **kwargs: dict) -> None:
+    def updateAll(self, className: Any, filterString: Any, updateData: dict, **kwargs: dict) -> Tuple[bool, str]:
         """[summary]
         更新多筆資料
         Args:
@@ -448,14 +458,17 @@ class Orm:
                 text(filterString).params(**kwargs)
             ).update(
                 updata, synchronize_session=False)
+            return True, ""
         except DatabaseError as de:
             # self.logger.writeError(
             #     f"{sys._getframe().f_code.co_name}=>DatabaseError:{de}，className:{className.__name__}，filterString:{filterString}，kwargs:{kwargs}")
             self.session.rollback()
+            return False, f"{sys._getframe().f_code.co_name}=>DatabaseError:{de}"
         except Exception as e:
             # self.logger.writeError(
             #     f"{sys._getframe().f_code.co_name}=>Exception:{e}，className:{className.__name__}，filterString:{filterString}，kwargs:{kwargs}")
             self.session.rollback()
+            return False, f"{sys._getframe().f_code.co_name}=>Exception:{e}"
         finally:
             self.session.commit()
 
