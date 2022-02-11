@@ -9,6 +9,49 @@
 ### repository.py: 資料庫相關操作  
 ### service.py: 邏輯層處理  
 ## POST  
-### getUser:curl --location --request POST 'http://127.0.0.1:5000/user/getUser' \
+### getUser: 
+curl --location --request POST 'http://127.0.0.1:5000/user/getUser' \
 --header 'id: eyJtYWNoaW5lTmFtZSI6ICJ0ZXN0IiwgInRpbWUiOiAiMTIzIn0='  
+### addUser:
+curl --location --request POST 'http://127.0.0.1:5000/user/addUser' \
+--header 'id: eyJtYWNoaW5lTmFtZSI6ICJ0ZXN0IiwgInRpbWUiOiAiMTIzIn0=' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+   "user":[
+       {
+           "id":2,
+           "name":"Kelly",
+           "test":333
+       }
+   ]
+}'  
 ### updateOneUser:
+curl --location --request POST 'http://127.0.0.1:5000/user/updateOneUser' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "updateData":{
+        "test":3345678
+    },
+    "name":"kevin"
+}'  
+### updateAllUser:
+curl --location --request POST 'http://127.0.0.1:5000/user/updateAllUser' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "updateData":{
+        "test":7788
+    },
+    "name":"kevin"
+}'  
+### deleteOneUser:
+curl --location --request POST 'http://127.0.0.1:5000/user/deleteOneUser' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "name":"kevin"
+}'  
+### deleteAllUser:
+curl --location --request POST 'http://127.0.0.1:5000/user/deleteAllUser' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "name":"Wendy"
+}'
