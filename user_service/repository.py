@@ -1,6 +1,6 @@
 
 # -*- coding: utf-8 -*-
-from sqlalchemy import Table, Column, String, Integer
+from sqlalchemy import Table, Column, String, Integer, text
 from common.common import Orm, Log
 from user_service.model import User
 from typing import Tuple, Any, List
@@ -84,6 +84,32 @@ class UserTable:
             self.log.writeError(
                 f"{sys._getframe().f_code.co_name}=>detail{detail}，fileName:{fileName}，lineNum:{lineNum}")
             return False, [{"detail": detail, 'fileName': fileName, 'lineNum': lineNum, 'funcName': funcName}]
+        finally:
+            self.orm.close()
+
+    def getOneUser(self, filterString: str, **kwargs: dict) -> Tuple[bool, dict]:
+        try:
+            query = self.orm.getSessions().query(User).filter(
+                text(filterString).params(**kwargs)
+            ).order_by(User.id)
+            df = pd.read_sql(query.statement, self.orm.getSessions().bind)
+            if df.empty:
+                return False, dict
+            self.log.writeLog(
+                f"{sys._getframe().f_code.co_name}=>df{df.to_dict(orient='records')}")
+            return True, df.to_dict(orient='records')[0]
+        except Exception as e:
+            self.orm.close()
+            error_class = e.__class__.__name__  # 取得錯誤類型
+            detail = e.args[0]  # 取得詳細內容
+            cl, exc, tb = sys.exc_info()  # 取得Call Stack
+            lastCallStack = traceback.extract_tb(tb)[-1]  # 取得Call Stack的最後一筆資料
+            fileName = lastCallStack[0]  # 取得發生的檔案名稱
+            lineNum = lastCallStack[1]  # 取得發生的行號
+            funcName = lastCallStack[2]  # 取得發生的函數名稱
+            self.log.writeError(
+                f"{sys._getframe().f_code.co_name}=>detail{detail}，fileName:{fileName}，lineNum:{lineNum}")
+            return False, {"detail": detail, 'fileName': fileName, 'lineNum': lineNum, 'funcName': funcName}
         finally:
             self.orm.close()
 

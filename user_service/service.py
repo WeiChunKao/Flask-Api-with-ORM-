@@ -1,3 +1,4 @@
+from this import s
 from user_service.repository import UserTable
 from user_service.model import User
 from common.common import Http, Log
@@ -29,8 +30,19 @@ class UserClass:
 
     def addUser(self, data: list) -> Tuple[dict, int, dict]:
         rows: list = []
+        # where條件式
+        filterString = "name=: name"
         for d in data:
-            rows.append(User(d['id'], d['name'], d['test']))
+            # 判斷傳入List內的dict是否為Model User的子集，如果是子集為True，則False
+            if not set(d.keys()) < set(User.__dict__.keys()):
+                return Http.commonReturnFormat(flag, 'NG', {"message": f'第{data.index(d) + 1}使用者缺少參數'}), 404, Http.postHeader('test')
+            # 先select資料庫是否存在資料
+            sflag, sdata = self.userTable.getOneUser(
+                filterString, name=d['name'])
+            if not sflag and not sdata:
+                rows.append(User(d['id'], d['name'], d['test']))
+            else:
+                return Http.commonReturnFormat(sflag, f"{d['name']} field data duplicated", {}), 404, Http.postHeader('test')
         flag, msg = self.userTable.addUser(rows)
         if flag:
             return Http.commonReturnFormat(flag, 'OK', {"message": msg}), 200, Http.postHeader('test')
@@ -38,6 +50,7 @@ class UserClass:
             return Http.commonReturnFormat(flag, 'NG', {"message": msg}), 400, Http.postHeader('test')
 
     def updateOneUser(self, updateData: dict, **kwargs: dict) -> Tuple[dict, int, dict]:
+        # where條件式
         filterString: str = "name= :name"
         flag, msg = self.userTable.updateOneUser(
             filterString, updateData, **kwargs)
@@ -47,6 +60,7 @@ class UserClass:
             return Http.commonReturnFormat(flag, 'NG', {"message": msg}), 400, Http.postHeader('test')
 
     def updateAllUser(self, updateData: dict, **kwargs: dict) -> Tuple[dict, int, dict]:
+        # where條件式
         filterString: str = "name= :name"
         flag, msg = self.userTable.updateAllUser(
             filterString, updateData, **kwargs)
@@ -56,6 +70,7 @@ class UserClass:
             return Http.commonReturnFormat(False, 'NG', {"message": msg}), 400, Http.postHeader('test')
 
     def deleteOne(self, **kwargs: dict) -> Tuple[dict, int, dict]:
+        # where條件式
         filterString: str = "name= :name"
         flag, msg = self.userTable.deleteOneUser(filterString, **kwargs)
         if flag:
@@ -64,6 +79,7 @@ class UserClass:
             return Http.commonReturnFormat(flag, 'NG',  {"message": msg}), 400, Http.postHeader('test')
 
     def deleteAllUser(self, **kwargs: dict) -> Tuple[dict, int, dict]:
+        # where條件式
         filterString: str = "name= :name"
         flag, msg = self.userTable.deleteOneUser(filterString, **kwargs)
         if flag:
